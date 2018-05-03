@@ -1,3 +1,4 @@
+
 //importar pacotes 
 var express = require('express');
 var app = express();
@@ -40,7 +41,19 @@ router.route('/produtos')
             if(error)
                 res.send("Erro ao tentar salvar um novo produto"+ error);
 
-            res.json({'message':'produto inserido com sucesso'});    
+            res.status(201).json({message:'produto inserido com sucesso'});    
+        });
+    })
+
+    .get(function(req, res){
+        Produto.find(function(err, prods){
+            if(err)
+                res.send(err);
+            
+            res.status(200).json({
+                message:"everything is here",
+                todosProdutos:prods
+            });
         });
     });
 
