@@ -29,6 +29,72 @@ router.get('/', function(req, res){
     res.json({'message':'Ok, rota principal funcionando'});
 });
 
+//GetById
+router.route('/produtos/:productId')
+.get(function(req, res){
+    const id = req.params.productId;
+
+    Produto.findById(id, function(err, produto){
+        if(err){
+            res.status(500).json({
+                message:"Erro ao tentar encontrar produto, ID mal formado"
+            });
+        }
+        else if(produto == null){
+            res.status(400).json({
+                message:"produto não encontrado"
+            });
+        }else{
+            res.status(200).json({
+                message:"Produto encontrado",
+                produto: produto
+            });
+        }
+    });
+})
+
+//Atualização - Update - PUT, ex.: localhost:8000/api/produtos/productId
+.put(function(req, res){
+    const id = req.params.productId;
+    Produto.findById(id, function(err, produto){
+        if(err){
+            res.status(500).json({
+                message:"Id mal formada, erro ao tentar encontrar produto"
+            });
+        }
+        else if(produto == null){
+            res.status(400).json({
+                message: "produto não encontrado"
+            });
+        }
+        else{
+            produto.nome = req.body.nome;
+            produto.preco = req.body.preco;
+            produto.descricao = req.body.descricao;
+
+            produto.save(function(error){
+                if(error)
+                    res.send("Erro ao tentar atualizar produto"+ error);
+                
+                res.status(200).json({message:"produto atualizado com sucesso"});
+            });
+        }
+    });
+})
+
+//Remoção - Delete - DELETE, ex.: localhost:8000/api/produtos/productId
+.delete(function(req, res){
+    Produto.findByIdAndRemove(req.params.productId, (err, produto) => {
+        if(err) return res.status(500).send(err);
+
+        const response = {
+            message : "Produto removido com sucesso",
+            id: produto.id
+        };
+        return res.status(200).send(response);
+    });
+});
+
 router.route('/produtos')
     //POST para produtos (CREATE)
     .post(function(req,res){
@@ -58,7 +124,7 @@ router.route('/produtos')
     });
 
 //Vinculo da app com o motor de rotas
-//Dedfinindo uma rota padrão para as minhas apis
+//Definindo uma rota padrão para as minhas apis
 app.use('/api', router);
 
 app.listen(port);
